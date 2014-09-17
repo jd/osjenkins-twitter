@@ -1,1 +1,6 @@
 credentials.json
+AUTHORS
+.tox
+ChangeLog
+*.pyc
+*.egg-info
