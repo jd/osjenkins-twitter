@@ -20,6 +20,7 @@ for pipeline in content['pipelines']:
             # Queue name
             if change['name'] == 'integrated':
                 hours = ((time.time() * 1000 - change['heads'][0][0]['enqueue_time']) / (3600 * 1000))
+                break
         break
 
 if hours > 4:
