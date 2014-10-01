@@ -47,7 +47,7 @@ def tweet():
         elif hours > 2:
             symbol = "😠"
         else:
-            symbol = "😏"
+            symbol = "😌"
 
         text = ('%d patches in queue %s\n'
                 'Integrated queue delay: %.1f hours\n' % (count, symbol, hours))
