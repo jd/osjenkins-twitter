@@ -49,8 +49,8 @@ def tweet():
         else:
             symbol = "😏"
 
-        text = '%d patches in queue %s\n'
-        'Integrated queue delay: %.1f hours\n' % (count, symbol, hours)
+        text = ('%d patches in queue %s\n'
+                'Integrated queue delay: %.1f hours\n' % (count, symbol, hours))
     else:
         text = "The gate is empty 😎 🏖"
 
