@@ -36,7 +36,9 @@ def tweet():
         raise
 
     if count:
-        if hours > 12:
+        if hours > 16:
+            symbol = "😭"
+        elif hours > 12:
             symbol = "😰"
         elif hours > 10:
             symbol = "😤"
@@ -45,7 +47,7 @@ def tweet():
         elif hours > 4:
             symbol = "😣"
         elif hours > 2:
-            symbol = "😠"
+            symbol = "😃"
         else:
             symbol = "😌"
 
