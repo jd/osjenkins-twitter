@@ -35,7 +35,7 @@ def tweet():
     except Exception:
         try:
             api.PostUpdate("Where is the gate!? 😱")
-        except exception:
+        except Exception:
             pass
         # Re raise to have the full trace
         raise
