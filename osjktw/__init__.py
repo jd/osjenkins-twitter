@@ -2,8 +2,10 @@
 # -*- encoding: utf-8 -*-
 import json
 import time
+import sys
 
 import requests
+import six
 import twitter
 
 
@@ -33,12 +35,13 @@ def tweet():
                     hours = None
                 break
     except Exception:
+        exc = sys.exc_info()
         try:
             api.PostUpdate("Where is the gate!? 😱")
         except Exception:
             pass
         # Re raise to have the full trace
-        raise
+        six.reraise(*exc)
 
     if count:
         if hours > 16:
