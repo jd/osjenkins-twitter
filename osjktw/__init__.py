@@ -33,7 +33,10 @@ def tweet():
                     hours = None
                 break
     except Exception:
-        api.PostUpdate("Where is the gate!? 😱")
+        try:
+            api.PostUpdate("Where is the gate!? 😱")
+        except exception:
+            pass
         # Re raise to have the full trace
         raise
 
