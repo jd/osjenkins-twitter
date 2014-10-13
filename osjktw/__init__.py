@@ -26,7 +26,7 @@ def tweet():
                 for change in pipeline['change_queues']:
                     # Queue name
                     if (change['name'] == 'integrated'
-                       and change['name']['heads']):
+                       and change['heads']):
                         hours = ((time.time() * 1000
                                   - change['heads'][0][0]['enqueue_time'])
                                  / (3600 * 1000))
