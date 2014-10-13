@@ -21,14 +21,16 @@ def tweet():
             if pipeline['name'] == 'gate':
                 count = sum([sum(map(len, change['heads']))
                              for change in pipeline['change_queues']])
-                if count:
-                    for change in pipeline['change_queues']:
-                        # Queue name
-                        if change['name'] == 'integrated':
-                            hours = ((time.time() * 1000
-                                      - change['heads'][0][0]['enqueue_time'])
-                                     / (3600 * 1000))
-                            break
+                for change in pipeline['change_queues']:
+                    # Queue name
+                    if (change['name'] == 'integrated'
+                       and change['name']['heads']):
+                        hours = ((time.time() * 1000
+                                  - change['heads'][0][0]['enqueue_time'])
+                                 / (3600 * 1000))
+                        break
+                else:
+                    hours = None
                 break
     except Exception:
         api.PostUpdate("Where is the gate!? 😱")
@@ -51,8 +53,12 @@ def tweet():
         else:
             symbol = "😌"
 
-        text = ('%d patches in queue %s\n'
-                'Integrated queue delay: %.1f hours\n' % (count, symbol, hours))
+        text = "%d patches in queue %s\n" % (count, symbol)
+
+        if hours:
+            text += 'Integrated queue delay: %.1f hours\n' % hours
+        else:
+            text += 'Integrated queue delay empty\n'
     else:
         text = "The gate is empty 😎 🏖"
 
