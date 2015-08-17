@@ -1,3 +1,4 @@
 python-twitter
 requests
+retrying
 six

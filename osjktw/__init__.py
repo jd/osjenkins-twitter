@@ -5,8 +5,14 @@ import time
 import sys
 
 import requests
+import retrying
 import six
 import twitter
+
+
+@retrying.retry(stop_max_attempt_number=5)
+def get(url):
+    return requests.get(url)
 
 
 def tweet():
@@ -16,7 +22,7 @@ def tweet():
     api = twitter.Api(**creds)
 
     try:
-        req = requests.get("http://zuul.openstack.org/status.json")
+        req = get("http://zuul.openstack.org/status.json")
         content = json.loads(req.content)
 
         for pipeline in content['pipelines']:
