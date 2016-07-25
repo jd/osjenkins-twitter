@@ -25,21 +25,22 @@ def tweet():
         req = get("http://zuul.openstack.org/status.json")
         content = json.loads(req.content)
 
+        check_jobs = None
+        gate_jobs = None
+        hours = None
         for pipeline in content['pipelines']:
             if pipeline['name'] == 'gate':
-                count = sum([sum(map(len, change['heads']))
-                             for change in pipeline['change_queues']])
-                for change in pipeline['change_queues']:
-                    # Queue name
-                    if (change['name'] == 'integrated'
-                       and change['heads']):
-                        hours = ((time.time() * 1000
+                gate_jobs = sum([sum(map(len, change['heads']))
+                                 for change in pipeline['change_queues']])
+            if pipeline['name'] == 'check':
+                check_jobs = sum([sum(map(len, change['heads']))
+                                  for change in pipeline['change_queues']])
+            for change in pipeline['change_queues']:
+                if change['heads']:
+                    hours = max(hours,
+                                ((time.time() * 1000
                                   - change['heads'][0][0]['enqueue_time'])
-                                 / (3600 * 1000))
-                        break
-                else:
-                    hours = None
-                break
+                                 / (3600 * 1000)))
     except Exception:
         exc = sys.exc_info()
         try:
@@ -49,7 +50,13 @@ def tweet():
         # Re raise to have the full trace
         six.reraise(*exc)
 
-    if count:
+    text = []
+    if check_jobs is not None:
+        text.append("Check: %d patches in queue" % check_jobs)
+    if gate_jobs is not None:
+        text.append("Gate: %d patches in queue" % gate_jobs)
+
+    if hours is not None:
         if hours > 16:
             symbol = "😭"
         elif hours > 12:
@@ -64,20 +71,21 @@ def tweet():
             symbol = "😃"
         else:
             symbol = "😌"
+        text.append("Queue max delay: %.2f hours %s" % (hours, symbol))
 
-        text = "%d patches in queue %s\n" % (count, symbol)
-
-        if hours:
-            text += 'Integrated queue delay: %.1f hours\n' % hours
-        else:
-            text += 'Integrated queue delay empty\n'
-    else:
-        text = "The gate is empty 😎 🏖"
+    if not text:
+        text.append("I got nothing to do! So relax! 🏖")
 
     api.PostMedia(
-        text,
-        'http://graphite.openstack.org/render/'
-        '?from=-8hours&width=500&height=200'
-        '&margin=10&hideLegend=true&hideAxes=false&hideGrid=false'
-        '&target=color(stats.gauges.zuul.pipeline.gate.current_changes,'
-        '%20%276b8182%27)')
+        "\n".join(text),
+        "http://graphite.openstack.org/render/?from=-8hours"
+        "&height=200&until=now&width=500&bgcolor=ffffff"
+        "&fgcolor=000000"
+        "&target=color(alias(stats.gauges.zuul.geard.queue.running,%20%27Running%27)"
+        ",%20%27blue%27)&target=color(alias(stats.gauges.zuul.geard.queue.waiting,"
+        "%20%27Waiting%27),%20%27red%27)"
+        "&target=color(alias(stats.gauges.zuul.geard.queue.total,%20%27Total%20Jobs%27),"
+        "%20%27888888%27)&target=color(alias(stats.gauges.zuul.geard.workers,%20%27Workers%27),"
+        "%20%27green%27)"
+        "&title=Zuul%20Job%20Queue&_t=0.2885273156160839#1469459058311")
+
