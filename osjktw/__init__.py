@@ -3,6 +3,7 @@
 import json
 import time
 import sys
+import tempfile
 
 import requests
 import retrying
@@ -76,8 +77,8 @@ def tweet():
     if not text:
         text.append("I got nothing to do! So relax! 🏖")
 
-    api.PostMedia(
-        "\n".join(text),
+    tmp = tempfile.NamedTemporaryFile(suffix=".png")
+    media = get(
         "http://graphite.openstack.org/render/?from=-8hours"
         "&height=200&until=now&width=500&bgcolor=ffffff"
         "&fgcolor=000000"
@@ -88,4 +89,10 @@ def tweet():
         "%20%27888888%27)&target=color(alias(stats.gauges.zuul.geard.workers,%20%27Workers%27),"
         "%20%27green%27)"
         "&title=Zuul%20Job%20Queue&_t=0.2885273156160839#1469459058311")
+    tmp.write(media.content)
 
+    with open(tmp.name, "rb") as f:
+        media_id = api.UploadMediaSimple(f)
+    tmp.close()
+
+    api.PostUpdate("\n".join(text), media=media_id)
