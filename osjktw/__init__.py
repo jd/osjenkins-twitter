@@ -23,11 +23,11 @@ def tweet():
 
     try:
         req = get("http://zuul.openstack.org/status.json")
-        content = json.loads(req.content)
+        content = json.loads(req.text)
 
         check_jobs = None
         gate_jobs = None
-        hours = None
+        hours = 0
         for pipeline in content['pipelines']:
             if pipeline['name'] == 'gate':
                 gate_jobs = sum([sum(map(len, change['heads']))
