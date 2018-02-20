@@ -23,7 +23,7 @@ def tweet():
     api = twitter.Api(**creds)
 
     try:
-        req = get("http://zuul.openstack.org/status.json")
+        req = get("http://zuul.openstack.org/status")
         content = json.loads(req.text)
 
         check_jobs = None
